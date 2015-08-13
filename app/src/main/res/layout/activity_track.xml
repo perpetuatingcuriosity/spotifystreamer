@@ -1,20 +1,7 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    tools:context="com.example.pcurio.spotifystreamer.TrackActivity">
-
-    <TextView
-        android:id="@+id/empty_track_no_tracks"
-        android:text="@string/empty_no_tracks_label"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/trackRecyclerView"/>
-
-</RelativeLayout>
+    android:layout_width="match_parent"
+    android:id="@+id/track_fragment_container"
+    android:name="com.example.pcurio.spotifystreamer.TrackFragment"
+    tools:context="com.example.pcurio.spotifystreamer.TrackFragment" />

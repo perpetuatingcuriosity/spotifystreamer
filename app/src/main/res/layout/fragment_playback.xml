@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="18dp"
+    android:orientation="vertical"
+    tools:context="com.example.pcurio.spotifystreamer.PlaybackFragment">
+
+    <TextView
+        android:id="@+id/artist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Artist Name" />
+
+    <TextView
+        android:id="@+id/track_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Track Title" />
+
+    <ImageView
+        android:id="@+id/album_artwork"
+        android:src="@drawable/artist_default"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:scaleType="centerCrop"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:id="@+id/album_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Album Title" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/playback_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="18dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="3">
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginRight="16dp"
+            android:layout_height="@dimen/playback_control_height"
+            android:src="@android:drawable/ic_media_previous"
+            android:background="@android:color/holo_green_light"
+            android:scaleType="centerInside"/>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginRight="16dp"
+            android:layout_height="@dimen/playback_control_height"
+            android:src="@android:drawable/ic_media_play"
+            android:background="@android:color/holo_green_light"
+            android:scaleType="centerInside"/>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/playback_control_height"
+            android:src="@android:drawable/ic_media_next"
+            android:background="@android:color/holo_green_light"
+            android:scaleType="centerInside"/>
+    </LinearLayout>
+
+
+</LinearLayout>

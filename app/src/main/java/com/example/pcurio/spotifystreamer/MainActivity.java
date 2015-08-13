@@ -5,15 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -28,22 +23,25 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends AppCompatActivity implements Utils.artistSelectionListener {
+public class MainActivity extends AppCompatActivity implements SearchFragment.TrackListener {
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    public static final String SEARCH_FRAGMENT_TAG = "SFTAG";
+    public static final String TRACK_FRAGMENT_TAG = "TFTAG";
+
     private Context mContext;
+
+    private SearchFragment mSearchFragment;
+    private TrackFragment mTrackFragment;
 
     private SpotifyApi api;
     private SpotifyService spotify;
 
     private ArrayList<ArtistListItem> mSearchList = new ArrayList<>();
-    private RecyclerView mSearchRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mSearchAdapter;
 
-    private static final String SEARCH_LIST_KEY = "search_list";
+    private boolean mTwoPane;
 
-    private TextView mEmptyTextView;
+    //------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,35 +54,33 @@ public class MainActivity extends AppCompatActivity implements Utils.artistSelec
         api = new SpotifyApi();
         spotify = api.getService();
 
-        //RecyclerView
-        mSearchRecyclerView = (RecyclerView) findViewById(R.id.searchRecyclerView);
-        mLayoutManager = new LinearLayoutManager(mContext);
-        mSearchAdapter = new SearchListAdapter(this, mSearchList, this);
-        mSearchRecyclerView.setAdapter(mSearchAdapter);
-        mSearchRecyclerView.setLayoutManager(mLayoutManager);
-        mSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mSearchRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        mSearchFragment = new SearchFragment();
 
-        mSearchAdapter = new SearchListAdapter(this, mSearchList, this);
-        mSearchRecyclerView.setAdapter(mSearchAdapter);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.search_fragment_container, mSearchFragment, SEARCH_FRAGMENT_TAG)
+                .commit();
 
-        mEmptyTextView = (TextView) findViewById(R.id.empty_main_no_artists);
+        //Get and handle intent
+        Intent intent = getIntent();
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(SEARCH_LIST_KEY)) {
-            mSearchList = savedInstanceState.getParcelableArrayList(SEARCH_LIST_KEY);
-
-            mSearchAdapter = new SearchListAdapter(this, mSearchList, this);
-            mSearchRecyclerView.setAdapter(mSearchAdapter);
-
-        } else {
-            //Get and handle intent
-            Intent intent = getIntent();
-
-            if(intent != null){
-                handleIntent(intent);
-            }
+        if(intent != null) {
+            handleIntent(intent);
         }
 
+        if(findViewById(R.id.track_fragment_container)!= null) {
+            mTwoPane = true;
+
+            mTrackFragment = new TrackFragment();
+
+            if(savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.track_fragment_container, mTrackFragment,
+                                TRACK_FRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
 
     } //onCreate
 
@@ -94,56 +90,49 @@ public class MainActivity extends AppCompatActivity implements Utils.artistSelec
 
             //Get user’s query
             String query = intent.getStringExtra(SearchManager.QUERY);
-
-            //Execute search for artists
-            spotify.searchArtists(query, new Callback<ArtistsPager>() {
-                @Override
-                public void success(ArtistsPager artistsPager, Response response) {
-                    Log.d(TAG, "searchArtists > success");
-                    mSearchList.clear();
-
-                    mEmptyTextView.setVisibility(View.GONE);
-
-                    List<Artist> artists = artistsPager.artists.items;
-
-                    if(artists.size() == 0) {
-                        mSearchAdapter.notifyDataSetChanged();
-                        mEmptyTextView.setVisibility(View.VISIBLE);
-
-                        return;
-                    }
-
-                    for(Artist artist: artists){
-
-                        ArtistListItem singleListItem = new ArtistListItem();
-                        singleListItem.setSpotifyID(artist.id);
-                        singleListItem.setArtistName(artist.name);
-
-                        List<Image> albumArt = artist.images;
-
-                        if(albumArt.size() > 0){
-                            singleListItem.setArtistThumbnail(albumArt.get(0).url);
-                        }
-
-                        mSearchList.add(singleListItem);
-                    }
-
-                    mSearchAdapter.notifyDataSetChanged();
-
-                } //success
-
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.d(TAG, "searchArtists > failure: ");
-
-                    Toast.makeText(mContext, "Oops! There was a problem searching. " +
-                            "Try your search again.", Toast.LENGTH_SHORT).show();
-
-                } //failure
-            });
-
+            searchArtist(query);
         }
     } //handleIntent
+
+    public void searchArtist(String query){
+        //Execute search for artist
+        spotify.searchArtists(query, new Callback<ArtistsPager>() {
+            @Override
+            public void success(ArtistsPager artistsPager, Response response) {
+                Log.d(TAG, "searchArtists > success");
+                mSearchList.clear();
+
+                List<Artist> artists = artistsPager.artists.items;
+
+                for (Artist artist : artists) {
+
+                    ArtistListItem singleListItem = new ArtistListItem();
+                    singleListItem.setSpotifyID(artist.id);
+                    singleListItem.setArtistName(artist.name);
+
+                    List<Image> albumArt = artist.images;
+
+                    if (albumArt.size() > 0) {
+                        singleListItem.setArtistThumbnail(albumArt.get(0).url);
+                    }
+
+                    mSearchList.add(singleListItem);
+                }
+
+                mSearchFragment.updateArtistResults(mSearchList);
+
+            } //success
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(TAG, "searchArtists > failure: ");
+
+                Toast.makeText(mContext, "Oops! There was a problem searching. " +
+                        "Try your search again.", Toast.LENGTH_SHORT).show();
+
+            } //failure
+        });
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -151,21 +140,32 @@ public class MainActivity extends AppCompatActivity implements Utils.artistSelec
     } //onNewIntent
 
     @Override
-    public void onArtistClicked(String spotifyID, String artistName) {
+    public void displayTracks(String spotifyID, String artistName) {
 
-        Intent trackIntent = new Intent(MainActivity.this, TrackActivity.class);
-        trackIntent.putExtra(Utils.ARTIST_NAME, artistName);
-        trackIntent.putExtra(Utils.SPOTIFY_ID, spotifyID);
-        startActivity(trackIntent);
+        if(mTwoPane){
 
-    } //onArtistClicked
+            Bundle b = new Bundle();
+            b.putString("id", spotifyID);
+            b.putString("artist", artistName);
 
-    //SaveInstanceState
-    @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putParcelableArrayList(SEARCH_LIST_KEY, mSearchList);
-        super.onSaveInstanceState(savedInstanceState);
-    }
+            mTrackFragment = new TrackFragment();
+            mTrackFragment.setArguments(b);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.track_fragment_container, mTrackFragment,
+                            TRACK_FRAGMENT_TAG)
+                    .commit();
+
+        } else {
+
+            Intent trackIntent = new Intent(MainActivity.this, TrackActivity.class);
+            trackIntent.putExtra(Utils.ARTIST_NAME, artistName);
+            trackIntent.putExtra(Utils.SPOTIFY_ID, spotifyID);
+            startActivity(trackIntent);
+        }
+
+    } //displayTracks
+
 
     //-----------------------------------------------------------------------------
     //MENU
@@ -186,6 +186,19 @@ public class MainActivity extends AppCompatActivity implements Utils.artistSelec
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchArtist(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -203,4 +216,5 @@ public class MainActivity extends AppCompatActivity implements Utils.artistSelec
 
         return super.onOptionsItemSelected(item);
     }
+
 } //MainActivity

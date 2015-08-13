@@ -5,50 +5,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.Tracks;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
-public class TrackActivity extends AppCompatActivity implements Utils.trackSelectionListener {
+public class TrackActivity extends AppCompatActivity {
     public static final String TAG = TrackActivity.class.getSimpleName();
+
+    public static final String TRACK_FRAGMENT_TAG = "TFTAG";
+
+    private static final String ARTIST_NAME_KEY = "artist_name";
 
     private Context mContext;
 
-    private SpotifyApi api;
-    private SpotifyService spotify;
+    private TrackFragment mTrackFragment;
 
-    private ArrayList<ArtistTrackItem> mTopTrackList = new ArrayList<>();
-    private RecyclerView mTrackRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mTrackAdapter;
-
-    private static final String TRACK_LIST_KEY = "track_list";
-    private static final String ARTIST_NAME_KEY = "artist_name";
-
-    private TextView mEmptyTextView;
     private String mArtistName;
     private String mSpotifyID;
+
+    //------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,38 +32,25 @@ public class TrackActivity extends AppCompatActivity implements Utils.trackSelec
 
         mContext = this;
 
-        //Spotify
-        api = new SpotifyApi();
-        spotify = api.getService();
+        mTrackFragment = new TrackFragment();
 
-        //RecyclerView
-        mTrackRecyclerView = (RecyclerView) findViewById(R.id.trackRecyclerView);
-        mLayoutManager = new LinearLayoutManager(mContext);
-        mTrackRecyclerView.setLayoutManager(mLayoutManager);
-        mTrackAdapter = new TrackListAdapter(this, mTopTrackList, this);
-        mTrackRecyclerView.setAdapter(mTrackAdapter);
-        mTrackRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mTrackRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-
-        mEmptyTextView = (TextView) findViewById(R.id.empty_track_no_tracks);
-
-        if(savedInstanceState != null) {
-
-            mTopTrackList = savedInstanceState.getParcelableArrayList(TRACK_LIST_KEY);
-
-            mTrackAdapter = new TrackListAdapter(this, mTopTrackList, this);
-            mTrackRecyclerView.setAdapter(mTrackAdapter);
-
+        if(savedInstanceState != null && savedInstanceState.containsKey(ARTIST_NAME_KEY)) {
             mArtistName = savedInstanceState.getString(ARTIST_NAME_KEY);
-
-        } else {
-            //Retrieve intent data
-            Intent intent = getIntent();
-            mArtistName = intent.getStringExtra(Utils.ARTIST_NAME);
-            mSpotifyID = intent.getStringExtra(Utils.SPOTIFY_ID);
-
-            getTopTracks();
         }
+
+        //Retrieve intent data
+        Intent intent = getIntent();
+        mArtistName = intent.getStringExtra(Utils.ARTIST_NAME);
+        mSpotifyID = intent.getStringExtra(Utils.SPOTIFY_ID);
+
+        //Set arguments for TrackFragment
+        Bundle b = new Bundle();
+        b.putString("id", mSpotifyID);
+        mTrackFragment.setArguments(b);
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.track_fragment_container, mTrackFragment, TRACK_FRAGMENT_TAG)
+                .commit();
 
         //Set artist name as actionbar subtitle
         ActionBar actionBar = getSupportActionBar();
@@ -99,81 +61,12 @@ public class TrackActivity extends AppCompatActivity implements Utils.trackSelec
 
     } //onCreate
 
-    private void getTopTracks(){
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("country", Utils.COUNTRY_CODE);
-
-        spotify.getArtistTopTrack(mSpotifyID, options, new Callback<Tracks>() {
-            @Override
-            public void success(Tracks tracks, Response response) {
-                Log.d(TAG, "getArtistTopTrack > success");
-                mTopTrackList.clear();
-
-                mEmptyTextView.setVisibility(View.GONE);
-
-                List<Track> trackList = tracks.tracks;
-
-                if (trackList.size() == 0) {
-                    mTrackAdapter.notifyDataSetChanged();
-                    mEmptyTextView.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                while (mTopTrackList.size() < 10) {
-
-                    for (Track track : trackList) {
-
-                        ArtistTrackItem singleTrackItem = new ArtistTrackItem();
-                        singleTrackItem.setTrackName(track.name);
-                        singleTrackItem.setAlbumName(track.album.name);
-                        singleTrackItem.setPreviewUrl(track.preview_url);
-
-                        List<Image> albumArt = track.album.images;
-
-                        if (albumArt.size() > 0) {
-
-                            String largeUrl = albumArt.get(0).url;
-                            String smallUrl = albumArt.get(1).url;
-
-                            if (largeUrl != null) {
-                                singleTrackItem.setAlbumThumbnailLarge(largeUrl);
-                            }
-
-                            if (smallUrl != null) {
-                                singleTrackItem.setAlbumThumbnailSmall(smallUrl);
-                            }
-                        }
-
-                        mTopTrackList.add(singleTrackItem);
-                    }
-                }
-
-                mTrackAdapter.notifyDataSetChanged();
-
-            } //success
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "getArtistTopTrack > failure: " + error.getMessage());
-            } //failure
-        });
-    }
-
-    @Override
-    public void onTrackClicked(String previewUrl) {
-        //TODO: Spotify Streamer, pt. 2
-        Toast.makeText(this, "Start playing track preview", Toast.LENGTH_SHORT).show();
-    }
 
     //SaveInstanceState
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putParcelableArrayList(TRACK_LIST_KEY, mTopTrackList);
         savedInstanceState.putString(ARTIST_NAME_KEY, mArtistName);
-
     }
 
     //-----------------------------------------------------------------------------

@@ -7,4 +7,8 @@
     <string name="empty_no_tracks_label">No tracks found.\nTry searching for another artist.</string>
     <string name="empty_no_artists_label">No artists found. Try searching again!</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="toast_top_track_request_fail">Oops! There was a problem loading tracks. Can you try again?</string>
+
 </resources>
