@@ -68,6 +68,8 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_playback, container, false);
 
+        setRetainInstance(true);
+
         mArtistName = (TextView) rootView.findViewById(R.id.artist_name);
         mTrackTitle = (TextView) rootView.findViewById(R.id.track_title);
         mAlbumTitle = (TextView) rootView.findViewById(R.id.album_title);
@@ -113,13 +115,13 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
                     musicService.pauseTrack();
 
                     mPlayPauseButton.setImageDrawable(getResources()
-                            .getDrawable(android.R.drawable.ic_media_pause));
+                            .getDrawable(android.R.drawable.ic_media_play));
 
                 } else {
                     musicService.resumeTrack();
 
                     mPlayPauseButton.setImageDrawable(getResources()
-                            .getDrawable(android.R.drawable.ic_media_play));
+                            .getDrawable(android.R.drawable.ic_media_pause));
                 }
 
             }
@@ -147,7 +149,8 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
 
         if(playIntent == null){
             playIntent = new Intent(mActivity, MusicService.class);
-            mActivity.bindService(playIntent, playerConnection, Context.BIND_AUTO_CREATE);
+
+            mActivity.getApplicationContext().bindService(playIntent, playerConnection, Context.BIND_AUTO_CREATE);
             mActivity.startService(playIntent);
             Log.v(TAG, "Service started");
         }
@@ -158,21 +161,21 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-            musicService = binder.getService();
+            Log.v(TAG," > onServiceConnected");
 
-            musicService.setTrackList(mTrackList);
+            if(musicService == null){
 
-            musicService.setTrack(selectedTrackPosition);
+                MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+                musicService = binder.getService();
+                musicService.setTrackList(mTrackList);
+                musicService.setTrack(selectedTrackPosition);
+            }
+
             musicService.playTrack();
-
-            //TODO: switch icon to pause (as in track is playing)
 
             musicBound = true;
 
-            Log.v(TAG," > onServiceConnected: musicBound!");
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.v(TAG," > onServiceDisconnected");
@@ -182,11 +185,24 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     };
 
     @Override
-    public void onStop() {
-        mActivity.stopService(playIntent);
-        mActivity.unbindService(playerConnection);
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance())
+            getDialog().setOnDismissListener(null);
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        mActivity.getApplicationContext().stopService(playIntent);
+        mActivity.getApplicationContext().unbindService(playerConnection);
         musicService = null;
-        super.onStop();
+        super.onDestroy();
     }
 
     /** The system calls this only when creating the layout in a dialog. */

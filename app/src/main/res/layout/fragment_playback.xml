@@ -20,6 +20,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:text="Artist Name" />
 
         <TextView
@@ -28,14 +30,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:text="Track Title" />
 
         <ImageView
             android:id="@+id/album_artwork"
             android:src="@drawable/artist_default"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="275dp"
+            android:layout_height="275dp"
             android:paddingTop="@dimen/album_artwork_top_padding"
             android:paddingBottom="@dimen/album_artwork_bottom_padding"
             android:scaleType="centerInside" />
@@ -46,6 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:text="Album Title" />
 
         <SeekBar
@@ -76,7 +82,7 @@
                 android:layout_weight="1"
                 android:layout_marginRight="@dimen/playback_button_margin_right"
                 android:layout_height="@dimen/playback_control_height"
-                android:src="@android:drawable/ic_media_play"
+                android:src="@android:drawable/ic_media_pause"
                 android:background="@color/button_gray"
                 android:scaleType="centerInside"/>
 

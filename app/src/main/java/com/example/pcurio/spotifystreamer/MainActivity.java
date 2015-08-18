@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.example.pcurio.spotifystreamer.model.Track;
 
@@ -19,6 +18,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
     private Context mContext;
 
     private TrackFragment mTrackFragment;
+
+    //private PlaybackFragment mPlay;
 
     private boolean mTwoPane;
     private boolean mIsLargeLayout; //TODO: do we need this?
@@ -89,13 +90,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
     public void playTrack(ArrayList<Track> trackList, int selectedTrack) {
 
         if(mTwoPane){
-            Toast.makeText(mContext, "Play track now!", Toast.LENGTH_SHORT).show();
 
-//            // Create the fragment and show it as a dialog.
-//            PlaybackFragment newFragment = PlaybackFragment.newInstance();
-//
-//            newFragment.setArguments();
-//            newFragment.show(getSupportFragmentManager(), "dialog");
+            // Create the fragment and show it as a dialog
+            PlaybackFragment playbackFragment = new PlaybackFragment();
+
+            Bundle b = new Bundle();
+            b.putParcelableArrayList(Utils.TRACK_LIST, trackList);
+            b.putInt(Utils.SELECTED_TRACK_POSITION, selectedTrack);
+
+            playbackFragment.setArguments(b);
+
+            playbackFragment.show(getSupportFragmentManager(), "PLAYBACK_FRAG");
+
         } else {
 
             Intent playbackIntent = new Intent(MainActivity.this, PlaybackActivity.class);

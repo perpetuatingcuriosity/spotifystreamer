@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ public class SearchFragment extends android.support.v4.app.Fragment {
     private Utils.artistSelectionListener mArtistSelectionListener;
 
     private TextView mEmptyTextView;
+    private SearchView mSearchView;
 
     //Interface with Activity
     public TrackListener mCallback;
@@ -92,8 +94,6 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         api = new SpotifyApi();
         spotify = api.getService();
 
-        mEmptyTextView = (TextView) mActivity.findViewById(R.id.empty_main_no_artists);
-
         //RecyclerView
         mSearchRecyclerView = (android.support.v7.widget.RecyclerView) mActivity.findViewById(R.id.searchRecyclerView);
         mLayoutManager = new LinearLayoutManager(mActivity);
@@ -115,11 +115,13 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         mSearchAdapter = new SearchAdapter(mActivity, mSearchList, mArtistSelectionListener);
         mSearchRecyclerView.setAdapter(mSearchAdapter);
 
-        final SearchView searchView = (SearchView) mActivity.findViewById(R.id.search_bar);
+        mEmptyTextView = (TextView) mActivity.findViewById(R.id.empty_main_no_artists);
 
-        searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint(mActivity.getString(R.string.search_artist_query_hint));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView = (SearchView) mActivity.findViewById(R.id.search_bar);
+
+        mSearchView.setIconifiedByDefault(false);
+        mSearchView.setQueryHint(mActivity.getString(R.string.search_artist_query_hint));
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 showArtists(query);
@@ -133,6 +135,14 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         });
 
     } //onActivityCreated
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mActivity.getWindow().setSoftInputMode(WindowManager.
+                LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
 
     public void showArtists(String query){
 
