@@ -9,20 +9,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.pcurio.spotifystreamer.model.Track;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.TrackViewholder> {
 
     private Activity mActivity;
 
     private LayoutInflater inflater;
-    private List<ArtistTrackItem> listItems;
+    private ArrayList<Track> listItems;
 
     private Utils.trackSelectionListener trackListener;
 
     public TrackListAdapter
-            (Activity activity, List<ArtistTrackItem> listItems, Utils.trackSelectionListener listener) {
+            (Activity activity, ArrayList<Track> listItems, Utils.trackSelectionListener listener) {
 
         this.listItems = listItems;
         this.mActivity = activity;
@@ -42,12 +43,12 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     @Override
     public void onBindViewHolder(TrackViewholder holder, int position) {
 
-        ArtistTrackItem artistTrackItem = listItems.get(position);
+        Track track = listItems.get(position);
 
-        holder.trackName.setText(artistTrackItem.getTrackName());
-        holder.albumName.setText(artistTrackItem.getAlbumName());
+        holder.trackName.setText(track.getTrackName());
+        holder.albumName.setText(track.getAlbumName());
 
-        String albumThumbnail = artistTrackItem.getAlbumThumbnailLarge();
+        String albumThumbnail = track.getAlbumThumbnailLarge();
 
             Glide.with(mActivity)
                     .load(albumThumbnail)
@@ -78,9 +79,8 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
                 @Override
                 public void onClick(View view) {
 
-                    //TODO: Spotify Streamer pt. 2
-                    ArtistTrackItem selectedItem = listItems.get(getPosition());
-                    trackListener.onTrackClicked(selectedItem.getPreviewUrl());
+                    //Track selectedItem = listItems.get(getAdapterPosition());
+                    trackListener.onTrackClicked(listItems, getAdapterPosition());
 
                 }
             });

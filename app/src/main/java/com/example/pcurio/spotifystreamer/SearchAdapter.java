@@ -9,20 +9,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.pcurio.spotifystreamer.model.Artist;
 
+import java.util.Collections;
 import java.util.List;
 
-public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.SearchViewholder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewholder> {
 
     private Activity mActivity;
 
     private LayoutInflater inflater;
-    private List<ArtistListItem> listItems;
+    private List<Artist> listItems = Collections.emptyList();
 
     private Utils.artistSelectionListener artistListener;
 
-    public SearchListAdapter
-            (Activity activity, List<ArtistListItem> listItems, Utils.artistSelectionListener listener) {
+    public SearchAdapter
+            (Activity activity, List<Artist> listItems, Utils.artistSelectionListener listener) {
 
         this.listItems = listItems;
         this.mActivity = activity;
@@ -32,21 +34,20 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
     }
 
     @Override
-    public SearchListAdapter.SearchViewholder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SearchAdapter.SearchViewholder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.search_result_item, parent, false);
-
         SearchViewholder holder = new SearchViewholder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(SearchListAdapter.SearchViewholder holder, int position) {
+    public void onBindViewHolder(SearchAdapter.SearchViewholder holder, int position) {
 
-        ArtistListItem artistListItem = listItems.get(position);
+        Artist artist = listItems.get(position);
 
-        holder.artistName.setText(artistListItem.getArtistName());
+        holder.artistName.setText(artist.getArtistName());
 
-        String artistThumbnail = artistListItem.getArtistThumbnail();
+        String artistThumbnail = artist.getArtistThumbnail();
 
         Glide.with(mActivity)
                 .load(artistThumbnail)
@@ -59,9 +60,10 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
     public int getItemCount() {
 
         return listItems.size();
+
     }
 
-    public class SearchViewholder extends RecyclerView.ViewHolder {
+    public class SearchViewholder extends RecyclerView.ViewHolder{
 
         private ImageView artistThumbnail;
         private TextView artistName;
@@ -72,17 +74,15 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
             artistThumbnail = (ImageView) itemView.findViewById(R.id.search_album_art);
             artistName = (TextView) itemView.findViewById(R.id.search_artist_name);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    ArtistListItem selectedItem = listItems.get(getPosition());
-                    artistListener.onArtistClicked
-                            (selectedItem.getSpotifyID(), selectedItem.getArtistName());
-
-                }
-            });
-
         }
+
+//        @Override
+//        public void onClick(View view) {
+//            Toast.makeText(mActivity, "hello world", Toast.LENGTH_SHORT).show();
+//
+//            Artist selectedItem = listItems.get(getAdapterPosition());
+//            artistListener.onArtistClicked
+//                    (selectedItem.getSpotifyID(), selectedItem.getArtistName());
+//        }
     }
 }

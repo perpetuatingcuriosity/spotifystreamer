@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Spotify Streamer</string>
     <string name="title_activity_tracks">Top 10 Tracks</string>
+    <string name="title_activity_playback">Spotify Streamer</string>
 
     <string name="action_settings">Settings</string>
     <string name="search_title">Search artists</string>
@@ -8,7 +9,7 @@
     <string name="empty_no_artists_label">No artists found. Try searching again!</string>
 
 <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="toast_top_track_request_fail">Oops! There was a problem loading tracks. Can you try again?</string>
+
 
 </resources>

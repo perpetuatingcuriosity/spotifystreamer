@@ -1,6 +1,5 @@
 package com.example.pcurio.spotifystreamer;
 
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pcurio.spotifystreamer.model.Track;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,6 @@ import java.util.Map;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -36,7 +36,7 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
     private SpotifyApi api;
     private SpotifyService spotify;
 
-    private ArrayList<ArtistTrackItem> mTopTrackList = new ArrayList<>();
+    private ArrayList<Track> mTopTrackList = new ArrayList<>();
     private RecyclerView mTrackRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mTrackAdapter;
@@ -45,11 +45,32 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
 
     private TextView mEmptyTextView;
 
+    //Interface with Activity
+    public PlaybackListener mCallback;
+
     //------------------------------------------------------------------
+
+    public interface PlaybackListener {
+        void playTrack(ArrayList<Track> trackList, int selectedTrack);
+    }
 
     public TrackFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        mActivity = activity;
+
+        try {
+            mCallback = (PlaybackListener) activity;
+        } catch(ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + "must implement TrackFragment.PlaybackListener");
+        }
+    } //onAttach
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,8 +105,7 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
             Bundle b = getArguments();
 
             if(b != null){
-                String spotifyID = b.getString("id");
-
+                String spotifyID = b.getString(Utils.SPOTIFY_ID);
                 getTopTracks(spotifyID);
             }
         }
@@ -102,15 +122,16 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
             @Override
             public void success(Tracks tracks, Response response) {
                 Log.d(TAG, "getArtistTopTrack > success");
+
                 mTopTrackList.clear();
 
-                List<Track> trackList = tracks.tracks;
+                List<kaaes.spotify.webapi.android.models.Track> trackList = tracks.tracks;
 
                 while (mTopTrackList.size() < 10) {
 
-                    for (Track track : trackList) {
+                    for (kaaes.spotify.webapi.android.models.Track track : trackList) {
 
-                        ArtistTrackItem singleTrackItem = new ArtistTrackItem();
+                        Track singleTrackItem = new Track();
                         singleTrackItem.setTrackName(track.name);
                         singleTrackItem.setAlbumName(track.album.name);
                         singleTrackItem.setPreviewUrl(track.preview_url);
@@ -158,8 +179,8 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
     } //getTopTracks
 
     @Override
-    public void onTrackClicked(String previewUrl) {
-        //TODO: play track preview
+    public void onTrackClicked(ArrayList<Track> trackList, int selectedTrack) {
+        mCallback.playTrack(trackList, selectedTrack);
 
     }
 
@@ -169,4 +190,5 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putParcelableArrayList(TRACK_LIST_KEY, mTopTrackList);
     }
+
 } //TrackFragment

@@ -1,9 +1,9 @@
-package com.example.pcurio.spotifystreamer;
+package com.example.pcurio.spotifystreamer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ArtistTrackItem implements Parcelable {
+public class Track implements Parcelable {
 
     private String trackName;
     private String albumName;
@@ -11,7 +11,7 @@ public class ArtistTrackItem implements Parcelable {
     private String albumThumbnailSmall;
     private String previewUrl;
 
-    public ArtistTrackItem(){
+    public Track(){
 
     }
 
@@ -56,7 +56,7 @@ public class ArtistTrackItem implements Parcelable {
     }
 
 
-    private ArtistTrackItem(Parcel in){
+    private Track(Parcel in){
         this.trackName = in.readString();
         this.albumName = in.readString();
         this.albumThumbnailLarge = in.readString();
@@ -78,15 +78,15 @@ public class ArtistTrackItem implements Parcelable {
         parcel.writeString(this.previewUrl);
     }
 
-    public static final Parcelable.Creator<ArtistTrackItem> CREATOR = new Parcelable.Creator<ArtistTrackItem>() {
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
         @Override
-        public ArtistTrackItem createFromParcel(Parcel in) {
-            return new ArtistTrackItem(in);
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
         }
 
         @Override
-        public ArtistTrackItem[] newArray(int size) {
-            return new ArtistTrackItem[size];
+        public Track[] newArray(int size) {
+            return new Track[size];
         }
     };
 

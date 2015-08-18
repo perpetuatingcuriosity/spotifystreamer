@@ -4,4 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="playback_control_width">60dp</dimen>
     <dimen name="playback_control_height">60dp</dimen>
+    <dimen name="playback_button_margin_right">16dp</dimen>
+    <dimen name="playback_controls_margin">16dp</dimen>
+    <dimen name="album_artwork_top_padding">8dp</dimen>
+    <dimen name="album_artwork_bottom_padding">8dp</dimen>
 </resources>

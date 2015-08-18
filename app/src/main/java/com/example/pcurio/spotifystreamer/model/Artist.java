@@ -1,15 +1,15 @@
-package com.example.pcurio.spotifystreamer;
+package com.example.pcurio.spotifystreamer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ArtistListItem implements Parcelable {
+public class Artist implements Parcelable {
 
     private String artistName;
     private String spotifyID;
     private String artistThumbnail;
 
-    public ArtistListItem(){
+    public Artist(){
 
     }
 
@@ -38,7 +38,7 @@ public class ArtistListItem implements Parcelable {
     }
 
 
-    private ArtistListItem(Parcel in){
+    private Artist(Parcel in){
         this.artistName = in.readString();
         this.spotifyID = in.readString();
         this.artistThumbnail = in.readString();
@@ -58,15 +58,15 @@ public class ArtistListItem implements Parcelable {
 
     }
 
-    public static final Parcelable.Creator<ArtistListItem> CREATOR = new Parcelable.Creator<ArtistListItem>() {
+    public static final Parcelable.Creator<Artist> CREATOR = new Parcelable.Creator<Artist>() {
         @Override
-        public ArtistListItem createFromParcel(Parcel in) {
-            return new ArtistListItem(in);
+        public Artist createFromParcel(Parcel in) {
+            return new Artist(in);
         }
 
         @Override
-        public ArtistListItem[] newArray(int size) {
-            return new ArtistListItem[size];
+        public Artist[] newArray(int size) {
+            return new Artist[size];
         }
     };
 

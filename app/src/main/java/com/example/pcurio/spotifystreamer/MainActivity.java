@@ -6,24 +6,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.pcurio.spotifystreamer.model.Artist;
+import com.example.pcurio.spotifystreamer.model.Track;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.TrackListener {
+public class MainActivity extends AppCompatActivity implements SearchFragment.TrackListener,
+        TrackFragment.PlaybackListener{
     public static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String SEARCH_FRAGMENT_TAG = "SFTAG";
@@ -37,9 +33,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
     private SpotifyApi api;
     private SpotifyService spotify;
 
-    private ArrayList<ArtistListItem> mSearchList = new ArrayList<>();
+    private ArrayList<Artist> mSearchList = new ArrayList<>();
 
     private boolean mTwoPane;
+    private boolean mIsLargeLayout; //TODO: do we need this?
+
+    private String mArtistName;
 
     //------------------------------------------------------------------
 
@@ -95,43 +94,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
     } //handleIntent
 
     public void searchArtist(String query){
-        //Execute search for artist
-        spotify.searchArtists(query, new Callback<ArtistsPager>() {
-            @Override
-            public void success(ArtistsPager artistsPager, Response response) {
-                Log.d(TAG, "searchArtists > success");
-                mSearchList.clear();
 
-                List<Artist> artists = artistsPager.artists.items;
-
-                for (Artist artist : artists) {
-
-                    ArtistListItem singleListItem = new ArtistListItem();
-                    singleListItem.setSpotifyID(artist.id);
-                    singleListItem.setArtistName(artist.name);
-
-                    List<Image> albumArt = artist.images;
-
-                    if (albumArt.size() > 0) {
-                        singleListItem.setArtistThumbnail(albumArt.get(0).url);
-                    }
-
-                    mSearchList.add(singleListItem);
-                }
-
-                mSearchFragment.updateArtistResults(mSearchList);
-
-            } //success
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "searchArtists > failure: ");
-
-                Toast.makeText(mContext, "Oops! There was a problem searching. " +
-                        "Try your search again.", Toast.LENGTH_SHORT).show();
-
-            } //failure
-        });
+        mSearchFragment.showArtists(query);
     }
 
     @Override
@@ -145,8 +109,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
         if(mTwoPane){
 
             Bundle b = new Bundle();
-            b.putString("id", spotifyID);
-            b.putString("artist", artistName);
+            b.putString(Utils.SPOTIFY_ID, spotifyID);
+            b.putString(Utils.ARTIST_NAME, artistName);
+
+            mArtistName = artistName;
 
             mTrackFragment = new TrackFragment();
             mTrackFragment.setArguments(b);
@@ -161,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
             Intent trackIntent = new Intent(MainActivity.this, TrackActivity.class);
             trackIntent.putExtra(Utils.ARTIST_NAME, artistName);
             trackIntent.putExtra(Utils.SPOTIFY_ID, spotifyID);
+            trackIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(trackIntent);
         }
 
@@ -186,18 +153,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchArtist(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                searchArtist(query);
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                return false;
+//            }
+//        });
 
         return true;
     }
@@ -217,4 +184,26 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void playTrack(ArrayList<Track> trackList, int selectedTrack) {
+
+
+        if(mTwoPane){
+            Toast.makeText(mContext, "Play track now!", Toast.LENGTH_SHORT).show();
+
+//            // Create the fragment and show it as a dialog.
+//            PlaybackFragment newFragment = PlaybackFragment.newInstance();
+//
+//            newFragment.setArguments();
+//            newFragment.show(getSupportFragmentManager(), "dialog");
+        } else {
+
+            Intent playbackIntent = new Intent(MainActivity.this, PlaybackActivity.class);
+            playbackIntent.putParcelableArrayListExtra(Utils.TRACK_LIST, trackList);
+            playbackIntent.putExtra(Utils.SELECTED_TRACK_POSITION, selectedTrack);
+            playbackIntent.putExtra(Utils.ARTIST_NAME, mArtistName);
+            startActivity(playbackIntent);
+        }
+
+    }
 } //MainActivity

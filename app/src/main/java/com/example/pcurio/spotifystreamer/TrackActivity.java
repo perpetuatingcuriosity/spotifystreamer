@@ -8,8 +8,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.pcurio.spotifystreamer.model.Track;
 
-public class TrackActivity extends AppCompatActivity {
+import java.util.ArrayList;
+
+
+public class TrackActivity extends AppCompatActivity implements TrackFragment.PlaybackListener {
     public static final String TAG = TrackActivity.class.getSimpleName();
 
     public static final String TRACK_FRAGMENT_TAG = "TFTAG";
@@ -45,7 +49,7 @@ public class TrackActivity extends AppCompatActivity {
 
         //Set arguments for TrackFragment
         Bundle b = new Bundle();
-        b.putString("id", mSpotifyID);
+        b.putString(Utils.SPOTIFY_ID, mSpotifyID);
         mTrackFragment.setArguments(b);
 
         getSupportFragmentManager().beginTransaction()
@@ -60,6 +64,18 @@ public class TrackActivity extends AppCompatActivity {
         }
 
     } //onCreate
+
+    @Override
+    public void playTrack(ArrayList<Track> trackList, int selectedTrack) {
+
+        Intent trackIntent = new Intent(TrackActivity.this, PlaybackActivity.class);
+        trackIntent.putParcelableArrayListExtra(Utils.TRACK_LIST, trackList);
+        trackIntent.putExtra(Utils.SELECTED_TRACK_POSITION, selectedTrack);
+        trackIntent.putExtra(Utils.ARTIST_NAME, mArtistName);
+        trackIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(trackIntent);
+
+    }
 
 
     //SaveInstanceState

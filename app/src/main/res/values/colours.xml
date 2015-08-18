@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="spotify_green">#81C340</color>
+    <color name="button_gray">#D6D6D6</color>
 </resources>
