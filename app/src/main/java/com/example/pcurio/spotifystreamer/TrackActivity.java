@@ -36,25 +36,33 @@ public class TrackActivity extends AppCompatActivity implements TrackFragment.Pl
 
         mContext = this;
 
-        mTrackFragment = new TrackFragment();
+        if(savedInstanceState == null){
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(ARTIST_NAME_KEY)) {
-            mArtistName = savedInstanceState.getString(ARTIST_NAME_KEY);
+            mTrackFragment = new TrackFragment();
+
+            //Retrieve intent data
+            Intent intent = getIntent();
+            mArtistName = intent.getStringExtra(Utils.ARTIST_NAME);
+            mSpotifyID = intent.getStringExtra(Utils.SPOTIFY_ID);
+
+            //Set arguments for TrackFragment
+            Bundle b = new Bundle();
+            b.putString(Utils.SPOTIFY_ID, mSpotifyID);
+            mTrackFragment.setArguments(b);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.track_fragment_container, mTrackFragment, TRACK_FRAGMENT_TAG)
+                    .commit();
+
+        } else {
+
+            mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
+
+            if(savedInstanceState.containsKey(ARTIST_NAME_KEY)){
+                mArtistName = savedInstanceState.getString(ARTIST_NAME_KEY);
+            }
+
         }
-
-        //Retrieve intent data
-        Intent intent = getIntent();
-        mArtistName = intent.getStringExtra(Utils.ARTIST_NAME);
-        mSpotifyID = intent.getStringExtra(Utils.SPOTIFY_ID);
-
-        //Set arguments for TrackFragment
-        Bundle b = new Bundle();
-        b.putString(Utils.SPOTIFY_ID, mSpotifyID);
-        mTrackFragment.setArguments(b);
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.track_fragment_container, mTrackFragment, TRACK_FRAGMENT_TAG)
-                .commit();
 
         //Set artist name as actionbar subtitle
         ActionBar actionBar = getSupportActionBar();

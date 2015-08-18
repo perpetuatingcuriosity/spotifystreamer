@@ -28,7 +28,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class TrackFragment extends android.support.v4.app.Fragment implements Utils.trackSelectionListener {
+public class TrackFragment extends android.support.v4.app.Fragment {
     public static final String TAG = TrackFragment.class.getSimpleName();
 
     private Activity mActivity;
@@ -37,9 +37,12 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
     private SpotifyService spotify;
 
     private ArrayList<Track> mTopTrackList = new ArrayList<>();
+
     private RecyclerView mTrackRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mTrackAdapter;
+
+    private Utils.trackSelectionListener mTrackSelectionListener;
 
     private static final String TRACK_LIST_KEY = "track_list";
 
@@ -78,28 +81,38 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_track, container, false);
 
+        return rootView;
+    } //onCreateView
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         mActivity = getActivity();
 
         //Spotify
         api = new SpotifyApi();
         spotify = api.getService();
 
+        mEmptyTextView = (TextView) mActivity.findViewById(R.id.empty_track_no_tracks);
+
         //RecyclerView
-        mTrackRecyclerView = (android.support.v7.widget.RecyclerView) rootView.findViewById(R.id.trackRecyclerView);
+        mTrackRecyclerView = (android.support.v7.widget.RecyclerView) mActivity.findViewById(R.id.trackRecyclerView);
         mLayoutManager = new LinearLayoutManager(mActivity);
         mTrackRecyclerView.setLayoutManager(mLayoutManager);
-        mTrackAdapter = new TrackListAdapter(mActivity, mTopTrackList, this);
-        mTrackRecyclerView.setAdapter(mTrackAdapter);
         mTrackRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mTrackRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, LinearLayoutManager.VERTICAL));
 
-        mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_track_no_tracks);
+        mTrackSelectionListener = new Utils.trackSelectionListener() {
+            @Override
+            public void onTrackClicked(ArrayList<Track> trackList, int trackPosition) {
+                mCallback.playTrack(trackList, trackPosition);
+            }
+        };
 
-        if(savedInstanceState != null) {
+        if(savedInstanceState != null && savedInstanceState.containsKey(TRACK_LIST_KEY)) {
             mTopTrackList = savedInstanceState.getParcelableArrayList(TRACK_LIST_KEY);
 
-            mTrackAdapter = new TrackListAdapter(mActivity, mTopTrackList, this);
-            mTrackRecyclerView.setAdapter(mTrackAdapter);
         } else {
 
             Bundle b = getArguments();
@@ -110,8 +123,10 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
             }
         }
 
-        return rootView;
-    }
+        mTrackAdapter = new TrackListAdapter(mActivity, mTopTrackList, mTrackSelectionListener);
+        mTrackRecyclerView.setAdapter(mTrackAdapter);
+
+    } //onActivityCreated
 
     private void getTopTracks(String spotifyID){
 
@@ -177,12 +192,6 @@ public class TrackFragment extends android.support.v4.app.Fragment implements Ut
             } //failure
         });
     } //getTopTracks
-
-    @Override
-    public void onTrackClicked(ArrayList<Track> trackList, int selectedTrack) {
-        mCallback.playTrack(trackList, selectedTrack);
-
-    }
 
     //SaveInstanceState
     @Override

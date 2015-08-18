@@ -3,6 +3,17 @@
     android:layout_height="match_parent"
     tools:context="com.example.pcurio.spotifystreamer.SearchFragment">
 
+    <android.support.v7.widget.SearchView
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:background="@color/button_gray"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingRight="16dp"
+        android:imeOptions="actionDone"/>
+
     <TextView
         android:id="@+id/empty_main_no_artists"
         android:text="@string/empty_no_artists_label"
@@ -14,7 +25,8 @@
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_below="@+id/search_bar"
+        android:layout_height="wrap_content"
         android:id="@+id/searchRecyclerView"/>
 
 </RelativeLayout>

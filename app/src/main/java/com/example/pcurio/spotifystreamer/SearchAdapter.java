@@ -63,7 +63,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
     }
 
-    public class SearchViewholder extends RecyclerView.ViewHolder{
+    public class SearchViewholder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private ImageView artistThumbnail;
         private TextView artistName;
@@ -74,15 +74,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             artistThumbnail = (ImageView) itemView.findViewById(R.id.search_album_art);
             artistName = (TextView) itemView.findViewById(R.id.search_artist_name);
 
+            itemView.setOnClickListener(this);
         }
 
-//        @Override
-//        public void onClick(View view) {
-//            Toast.makeText(mActivity, "hello world", Toast.LENGTH_SHORT).show();
-//
-//            Artist selectedItem = listItems.get(getAdapterPosition());
-//            artistListener.onArtistClicked
-//                    (selectedItem.getSpotifyID(), selectedItem.getArtistName());
-//        }
+        @Override
+        public void onClick(View view) {
+
+            Artist selectedItem = listItems.get(getAdapterPosition());
+            artistListener.onArtistClicked
+                    (selectedItem.getSpotifyID(), selectedItem.getArtistName());
+        }
     }
 }

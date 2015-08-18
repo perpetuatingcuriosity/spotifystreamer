@@ -10,6 +10,7 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="toast_top_track_request_fail">Oops! There was a problem loading tracks. Can you try again?</string>
+    <string name="search_artist_query_hint">Search Artists</string>
 
 
 </resources>

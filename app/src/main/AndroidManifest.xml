@@ -31,7 +31,8 @@
         </activity>
         <activity
             android:name=".TrackActivity"
-            android:label="@string/title_activity_tracks">
+            android:label="@string/title_activity_tracks"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.pcurio.spotifystreamer.MainActivity" />

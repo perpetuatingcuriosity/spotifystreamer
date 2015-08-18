@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,29 +80,6 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
-        //Spotify
-        api = new SpotifyApi();
-        spotify = api.getService();
-
-        mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_main_no_artists);
-
-        //RecyclerView
-        mSearchRecyclerView = (android.support.v7.widget.RecyclerView) rootView.findViewById(R.id.searchRecyclerView);
-        mSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mSearchRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, LinearLayoutManager.VERTICAL));
-        mLayoutManager = new LinearLayoutManager(mActivity);
-        mSearchRecyclerView.setLayoutManager(mLayoutManager);
-
-        mArtistSelectionListener = new Utils.artistSelectionListener() {
-            @Override
-            public void onArtistClicked(String spotifyID, String artistName) {
-                mCallback.displayTracks(spotifyID, artistName);
-            }
-        };
-
-        mSearchAdapter = new SearchAdapter(mActivity, mSearchList, mArtistSelectionListener);
-        mSearchRecyclerView.setAdapter(mSearchAdapter);
-
         return rootView;
 
     } //onCreateView
@@ -110,14 +88,51 @@ public class SearchFragment extends android.support.v4.app.Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(SEARCH_LIST_KEY)) {
+        //Spotify
+        api = new SpotifyApi();
+        spotify = api.getService();
 
+        mEmptyTextView = (TextView) mActivity.findViewById(R.id.empty_main_no_artists);
+
+        //RecyclerView
+        mSearchRecyclerView = (android.support.v7.widget.RecyclerView) mActivity.findViewById(R.id.searchRecyclerView);
+        mLayoutManager = new LinearLayoutManager(mActivity);
+        mSearchRecyclerView.setLayoutManager(mLayoutManager);
+        mSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mSearchRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, LinearLayoutManager.VERTICAL));
+
+        mArtistSelectionListener = new Utils.artistSelectionListener() {
+            @Override
+            public void onArtistClicked(String spotifyID, String artistName) {
+                mCallback.displayTracks(spotifyID, artistName);
+            }
+        };
+
+        if(savedInstanceState != null && savedInstanceState.containsKey(SEARCH_LIST_KEY)) {
             mSearchList = savedInstanceState.getParcelableArrayList(SEARCH_LIST_KEY);
-        } else {
-            mSearchList = new ArrayList<>();
         }
 
-    }
+        mSearchAdapter = new SearchAdapter(mActivity, mSearchList, mArtistSelectionListener);
+        mSearchRecyclerView.setAdapter(mSearchAdapter);
+
+        final SearchView searchView = (SearchView) mActivity.findViewById(R.id.search_bar);
+
+        searchView.setIconifiedByDefault(false);
+        searchView.setQueryHint(mActivity.getString(R.string.search_artist_query_hint));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                showArtists(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+    } //onActivityCreated
 
     public void showArtists(String query){
 
@@ -176,10 +191,5 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         super.onSaveInstanceState(savedInstanceState);
 
     }
-
-//    @Override
-//    public void onArtistClicked(String spotifyID, String artistName) {
-//        mCallback.displayTracks(spotifyID, artistName);
-//    }
 
 } //SearchFragment
