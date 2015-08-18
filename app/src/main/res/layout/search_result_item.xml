@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:padding="@dimen/list_result_padding"
     android:focusable="true"
     android:orientation="horizontal"
     android:background="?android:attr/selectableItemBackground"
@@ -10,14 +10,13 @@
 
     <ImageView
         android:id="@+id/search_album_art"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="@dimen/list_result_image_size"
+        android:layout_height="@dimen/list_result_image_size"
         android:layout_alignParentLeft="true"/>
 
     <TextView
         android:id="@+id/search_artist_name"
-        android:text="Hello"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="@dimen/list_result_image_text_spacing"
         android:ellipsize="end"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@id/search_album_art"

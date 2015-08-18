@@ -8,17 +8,21 @@
     tools:context="com.example.pcurio.spotifystreamer.MainActivity"
     android:orientation="horizontal">
 
-    <FrameLayout
-        android:id="@+id/search_fragment_container"
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_weight="2"/>
+        android:layout_weight="3"
+        android:id="@+id/search_fragment_container"
+        android:name="com.example.pcurio.spotifystreamer.SearchFragment"
+        tools:context="com.example.pcurio.spotifystreamer.SearchFragment"
+        tools:layout="@layout/fragment_search" />
 
     <FrameLayout
         android:id="@+id/track_fragment_container"
         android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_weight="4"/>
+        android:layout_weight="5"/>
 
 </LinearLayout>
 

@@ -9,9 +9,9 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:background="@color/button_gray"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingRight="16dp"
+        android:paddingTop="@dimen/search_bar_paddingTop"
+        android:paddingBottom="@dimen/search_bar_paddingBottom"
+        android:paddingRight="@dimen/search_bar_paddingRight"
         android:imeOptions="actionDone"/>
 
     <TextView
@@ -28,5 +28,4 @@
         android:layout_below="@+id/search_bar"
         android:layout_height="wrap_content"
         android:id="@+id/searchRecyclerView"/>
-
 </RelativeLayout>

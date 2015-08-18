@@ -8,4 +8,10 @@
     <dimen name="playback_controls_margin">16dp</dimen>
     <dimen name="album_artwork_top_padding">8dp</dimen>
     <dimen name="album_artwork_bottom_padding">8dp</dimen>
+    <dimen name="search_bar_paddingTop">8dp</dimen>
+    <dimen name="search_bar_paddingBottom">8dp</dimen>
+    <dimen name="search_bar_paddingRight">16dp</dimen>
+    <dimen name="list_result_image_size">75dp</dimen>
+    <dimen name="list_result_image_text_spacing">16dp</dimen>
+    <dimen name="list_result_padding">64dp</dimen>
 </resources>

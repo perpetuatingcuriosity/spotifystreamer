@@ -3,15 +3,15 @@
     android:orientation="horizontal"
     android:background="?android:attr/selectableItemBackground"
     android:minHeight="?android:listPreferredItemHeight"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:padding="@dimen/list_result_padding"
     android:focusable="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/artist_album_art"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="@dimen/list_result_image_size"
+        android:layout_height="@dimen/list_result_image_size"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"/>
 
@@ -19,7 +19,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="@dimen/list_result_image_text_spacing"
         android:layout_toRightOf="@id/artist_album_art"
         android:layout_centerVertical="true">
 
