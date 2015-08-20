@@ -54,15 +54,40 @@
             android:ellipsize="end"
             android:text="Album Title" />
 
-        <SeekBar
-            android:id="@+id/seekbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <SeekBar
+                android:id="@+id/seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/seekbar_start_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/seekbar"
+                android:text="00:00"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:id="@+id/seekbar_end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:30"
+                android:layout_below="@id/seekbar"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_alignParentRight="true"/>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/playback_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="00:30"
             android:padding="@dimen/playback_controls_margin"
             android:orientation="horizontal">
 

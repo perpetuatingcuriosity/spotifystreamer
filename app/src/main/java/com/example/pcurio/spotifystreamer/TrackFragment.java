@@ -106,7 +106,16 @@ public class TrackFragment extends android.support.v4.app.Fragment {
         mTrackSelectionListener = new Utils.trackSelectionListener() {
             @Override
             public void onTrackClicked(ArrayList<Track> trackList, int trackPosition) {
-                mCallback.playTrack(trackList, trackPosition);
+
+                //TODO: if preview url exists, playtrack
+                if(trackList.get(trackPosition).getPreviewUrl() != null){
+                    mCallback.playTrack(trackList, trackPosition);
+                } else {
+
+                    Toast.makeText(mActivity, mActivity.getString
+                            (R.string.toast_track_no_preview_available),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         };
 
@@ -142,32 +151,35 @@ public class TrackFragment extends android.support.v4.app.Fragment {
 
                 List<kaaes.spotify.webapi.android.models.Track> trackList = tracks.tracks;
 
-                while (mTopTrackList.size() < 10) {
+                if(trackList != null){
 
-                    for (kaaes.spotify.webapi.android.models.Track track : trackList) {
+                    while (mTopTrackList.size() < 10) {
 
-                        Track singleTrackItem = new Track();
-                        singleTrackItem.setTrackName(track.name);
-                        singleTrackItem.setAlbumName(track.album.name);
-                        singleTrackItem.setPreviewUrl(track.preview_url);
+                        for (kaaes.spotify.webapi.android.models.Track track : trackList) {
 
-                        List<Image> albumArt = track.album.images;
+                            Track singleTrackItem = new Track();
+                            singleTrackItem.setTrackName(track.name);
+                            singleTrackItem.setAlbumName(track.album.name);
+                            singleTrackItem.setPreviewUrl(track.preview_url);
 
-                        if (albumArt.size() > 0) {
+                            List<Image> albumArt = track.album.images;
 
-                            String largeUrl = albumArt.get(0).url;
-                            String smallUrl = albumArt.get(1).url;
+                            if (albumArt.size() > 0) {
 
-                            if (largeUrl != null) {
-                                singleTrackItem.setAlbumThumbnailLarge(largeUrl);
+                                String largeUrl = albumArt.get(0).url;
+                                String smallUrl = albumArt.get(1).url;
+
+                                if (largeUrl != null) {
+                                    singleTrackItem.setAlbumThumbnailLarge(largeUrl);
+                                }
+
+                                if (smallUrl != null) {
+                                    singleTrackItem.setAlbumThumbnailSmall(smallUrl);
+                                }
                             }
 
-                            if (smallUrl != null) {
-                                singleTrackItem.setAlbumThumbnailSmall(smallUrl);
-                            }
+                            mTopTrackList.add(singleTrackItem);
                         }
-
-                        mTopTrackList.add(singleTrackItem);
                     }
                 }
 
