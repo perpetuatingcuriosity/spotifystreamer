@@ -38,6 +38,7 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
     private final Handler handler = new Handler();
     private boolean trackEnded;
     public static final String BROADCAST_ACTION = "com.example.pcurio.spotifystreamer.seekprogress";
+    public static final String BROADCAST_AUTOPLAY = "com.example.pcurio.spotifystreamer.autoplay";
 
     Intent seekIntent;
 
@@ -59,13 +60,14 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
         //Set up intent for seekbar broadcast
         seekIntent = new Intent(BROADCAST_ACTION);
+
         songPosition = 0;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        registerReceiver(broadcastReceiver, new IntentFilter(PlaybackFragment.BROADCAST_SEEKBAR));
+        registerReceiver(seekProgressReceiver, new IntentFilter(PlaybackFragment.BROADCAST_SEEKBAR));
         return START_STICKY;
 
     }
@@ -76,6 +78,8 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     public void playTrack(){
 
+        handler.removeCallbacks(sendUpdatesToUI);
+
         player.reset();
         Track track = tracks.get(songPosition);
 
@@ -84,7 +88,6 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
         } catch (IOException e) {
             Log.e(TAG, "Error setting Data source");
         }
-
         player.prepareAsync();
     }
 
@@ -98,28 +101,35 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     private Runnable sendUpdatesToUI = new Runnable() {
         public void run() {
-            LogMediaPosition();
+
+            sendTrackData();
             handler.postDelayed(this, 100);
         }
     };
 
-    private void LogMediaPosition() {
+    private void sendTrackData() {
+
         currentTrackPosition = player.getCurrentPosition();
         totalTrackLength = player.getDuration();
         if(currentTrackPosition <= totalTrackLength){
 
+            if(currentTrackPosition >= totalTrackLength - 100){
+                trackEnded = true;
+            }
+
 //             if (currentTrackPosition < 1) {
 //             Toast.makeText(this, "Buffering...", Toast.LENGTH_SHORT).show();
 //             }
+
             seekIntent.putExtra(Utils.CURRENT_TRACK_POSITION, currentTrackPosition);
             seekIntent.putExtra(Utils.TRACK_LENGTH, totalTrackLength);
+            Log.v(TAG, "TRACK ENDED:" + String.valueOf(trackEnded));
             seekIntent.putExtra(Utils.TRACK_ENDED, trackEnded);
             sendBroadcast(seekIntent);
-
         }
     }
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver seekProgressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -167,13 +177,15 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        setUpHandler();
         mediaPlayer.start();
+        setUpHandler();
+        trackEnded = false;
+
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-
+        trackEnded = true;
     }
 
     @Override
@@ -231,7 +243,7 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
     public void onDestroy() {
         handler.removeCallbacks(sendUpdatesToUI);
         // Unregister seekbar receiver
-        unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(seekProgressReceiver);
 
         super.onDestroy();
     }

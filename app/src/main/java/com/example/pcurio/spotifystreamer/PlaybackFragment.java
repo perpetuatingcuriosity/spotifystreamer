@@ -8,7 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.pcurio.spotifystreamer.model.Track;
@@ -29,15 +33,15 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     public static final String TAG = PlaybackFragment.class.getSimpleName();
 
     private Activity mActivity;
+    private Context mContext;
 
     private MusicService musicService;
     private Intent playIntent;
     private boolean musicBound = false;
 
-    private boolean isPlaying;
-
     private ArrayList<Track> mTrackList;
     private int selectedTrackPosition;
+    private int lastTrackPosition;
 
     //Track Info
     private TextView mArtistName;
@@ -53,11 +57,15 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     private TextView mTrackStartTime;
     private TextView mTrackEndTime;
 
+    private Boolean pauseState = false;
+
     //Seekbar
     private SeekBar mSeekBar;
     private Intent seekbarIntent;
     boolean mBroadcastIsRegistered;
     private BroadcastReceiver broadcastReceiver;
+
+    private Handler seekbarHandler = new Handler();
 
     public static final String BROADCAST_SEEKBAR = "com.example.pcurio.spotifystreamer.sendseekbar";
 
@@ -104,6 +112,7 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
         if(b != null){
             mTrackList = b.getParcelableArrayList(Utils.TRACK_LIST);
             selectedTrackPosition = b.getInt(Utils.SELECTED_TRACK_POSITION);
+            lastTrackPosition = mTrackList.size() - 1;
             String artistName = b.getString(Utils.ARTIST_NAME);
 
             mArtistName.setText(artistName);
@@ -130,20 +139,18 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onClick(View view) {
                 if (musicService.isPlaying()) {
+                    pauseState = true;
                     musicService.pauseTrack();
 
                     mPlayPauseButton.setImageDrawable(getResources()
                             .getDrawable(android.R.drawable.ic_media_play));
 
-                    isPlaying = false;
-
                 } else {
+                    pauseState = false;
                     musicService.resumeTrack();
 
                     mPlayPauseButton.setImageDrawable(getResources()
                             .getDrawable(android.R.drawable.ic_media_pause));
-
-                    isPlaying = false;
                 }
 
             }
@@ -152,18 +159,7 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if(selectedTrackPosition == mTrackList.size()-1){
-                    selectedTrackPosition = 0;
-                } else {
-                    selectedTrackPosition ++;
-                }
-
-                updateUI(selectedTrackPosition);
-
-                musicService.setTrack(selectedTrackPosition);
-                musicService.playTrack();
-
+                playNextTrack();
             }
         });
 
@@ -196,25 +192,31 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
         super.onActivityCreated(savedInstanceState);
 
         mActivity = getActivity();
+        mContext = getActivity();
 
-        //TODO: check connectivity
+        if(isNetworkAvailable()){
 
-        if(playIntent == null){
-            playIntent = new Intent(mActivity, MusicService.class);
-            mActivity.getApplicationContext().bindService(playIntent, playerConnection, Context.BIND_AUTO_CREATE);
-            mActivity.startService(playIntent);
-            Log.v(TAG, "Service started");
-        }
-
-        seekbarIntent = new Intent(BROADCAST_SEEKBAR);
-
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                updateTrackData(intent);
+            if(playIntent == null){
+                playIntent = new Intent(mActivity, MusicService.class);
+                mActivity.getApplicationContext().bindService(playIntent, playerConnection, Context.BIND_AUTO_CREATE);
+                mActivity.startService(playIntent);
+                Log.v(TAG, "Service started");
             }
-        };
 
+            seekbarIntent = new Intent(BROADCAST_SEEKBAR);
+
+
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    updateTrackData(intent);
+                }
+            };
+
+        } else {
+            Toast.makeText(mContext, mActivity.getString(R.string.toast_playback_no_connection),
+                    Toast.LENGTH_SHORT).show();
+        }
 
     } //onActivityCreated
 
@@ -224,7 +226,7 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
 
         if(!mBroadcastIsRegistered) {
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
-                    MusicService.BROADCAST_ACTION));
+                    MusicService.BROADCAST_ACTION), null, seekbarHandler);
 
             mBroadcastIsRegistered = true;
         }
@@ -310,25 +312,23 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     //------------------------------------------------------------------
 
     private void updateTrackData(Intent intent) {
+        boolean trackEnded = intent.getBooleanExtra(Utils.TRACK_ENDED, false);
+
+        if (trackEnded) { //if song ended
+            Log.v(TAG, "updateTrackData > playNextTrack");
+            playNextTrack();
+
+            return;
+        }
+
         int currentPos = intent.getIntExtra(Utils.CURRENT_TRACK_POSITION, 0);
         int trackLength = intent.getIntExtra(Utils.TRACK_LENGTH, 30000);
-        Boolean trackEnded = intent.getBooleanExtra(Utils.TRACK_ENDED, false);
 
         mSeekBar.setMax(trackLength);
         mTrackEndTime.setText(Utils.getTimeString(trackLength));
 
         mSeekBar.setProgress(currentPos);
         mTrackStartTime.setText(Utils.getTimeString(currentPos));
-
-
-        if (trackEnded) {
-            mPlayPauseButton.setImageDrawable(getResources()
-                    .getDrawable(android.R.drawable.ic_media_play));
-
-            //TODO: go to next song instead?
-        }
-
-
 
     }
 
@@ -349,6 +349,32 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
             mPlayPauseButton.setImageDrawable(getResources()
                     .getDrawable(android.R.drawable.ic_media_pause));
         }
+    }
+
+    public void playNextTrack(){
+
+        if(selectedTrackPosition == lastTrackPosition){
+            selectedTrackPosition = 0;
+        } else {
+            selectedTrackPosition ++;
+        }
+
+        updateUI(selectedTrackPosition);
+
+        musicService.setTrack(selectedTrackPosition);
+        musicService.playTrack();
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+        boolean isAvailable = false;
+        if(networkInfo != null && networkInfo.isConnected()) {
+            isAvailable = true;
+        }
+
+        return isAvailable;
     }
 
 

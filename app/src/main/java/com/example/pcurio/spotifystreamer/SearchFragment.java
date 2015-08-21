@@ -151,9 +151,18 @@ public class SearchFragment extends android.support.v4.app.Fragment {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
                 Log.d(TAG, "searchArtists > success");
+
                 mSearchList.clear();
+                mEmptyTextView.setVisibility(View.GONE);
 
                 List<kaaes.spotify.webapi.android.models.Artist> artists = artistsPager.artists.items;
+
+                if(artists == null || artists.size() == 0){
+                    mEmptyTextView.setVisibility(View.VISIBLE);
+                    mSearchAdapter.notifyDataSetChanged();
+
+                    return;
+                }
 
                 for (kaaes.spotify.webapi.android.models.Artist artist : artists) {
 
@@ -168,13 +177,6 @@ public class SearchFragment extends android.support.v4.app.Fragment {
                     }
 
                     mSearchList.add(singleListItem);
-                }
-
-                mEmptyTextView.setVisibility(View.GONE);
-
-                if (mSearchList == null || mSearchList.size() == 0) {
-                    mEmptyTextView.setVisibility(View.VISIBLE);
-                    mSearchAdapter.notifyDataSetChanged();
                 }
 
                 mSearchAdapter.notifyDataSetChanged();

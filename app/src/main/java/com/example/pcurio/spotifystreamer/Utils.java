@@ -1,26 +1,10 @@
 package com.example.pcurio.spotifystreamer;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
 import com.example.pcurio.spotifystreamer.model.Track;
 
 import java.util.ArrayList;
 
 public class Utils {
-
-    public boolean isNetworkAvailable(Context context) {
-        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-
-        boolean isAvailable = false;
-        if(networkInfo != null && networkInfo.isConnected()) {
-            isAvailable = true;
-        }
-
-        return isAvailable;
-    }
 
     //API Constants
     public static final String SPOTIFY_ID = "spotifyID";

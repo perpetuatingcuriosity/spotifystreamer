@@ -12,6 +12,7 @@
     <string name="toast_top_track_request_fail">Oops! There was a problem loading tracks. Can you try again?</string>
     <string name="search_artist_query_hint">Search Artists</string>
     <string name="toast_track_no_preview_available">No preview available for this track. Select again!</string>
+    <string name="toast_playback_no_connection">There was a problem with your connection! Internet is required to play media</string>
 
 
 </resources>

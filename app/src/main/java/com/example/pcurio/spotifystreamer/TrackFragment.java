@@ -148,12 +148,18 @@ public class TrackFragment extends android.support.v4.app.Fragment {
                 Log.d(TAG, "getArtistTopTrack > success");
 
                 mTopTrackList.clear();
+                mEmptyTextView.setVisibility(View.GONE);
+
+                if(tracks == null || tracks.tracks.size() == 0){
+                    mTrackAdapter.notifyDataSetChanged();
+                    mEmptyTextView.setVisibility(View.VISIBLE);
+
+                    return;
+                }
 
                 List<kaaes.spotify.webapi.android.models.Track> trackList = tracks.tracks;
 
-                if(trackList != null){
-
-                    while (mTopTrackList.size() < 10) {
+                    while (mTopTrackList.size() < 10 && mTopTrackList.size() < trackList.size()) {
 
                         for (kaaes.spotify.webapi.android.models.Track track : trackList) {
 
@@ -181,14 +187,6 @@ public class TrackFragment extends android.support.v4.app.Fragment {
                             mTopTrackList.add(singleTrackItem);
                         }
                     }
-                }
-
-                mEmptyTextView.setVisibility(View.GONE);
-
-                if (mTopTrackList == null || mTopTrackList.size() == 0) {
-                    mTrackAdapter.notifyDataSetChanged();
-                    mEmptyTextView.setVisibility(View.VISIBLE);
-                }
 
                 mTrackAdapter.notifyDataSetChanged();
 
