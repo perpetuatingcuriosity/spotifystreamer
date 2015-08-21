@@ -56,8 +56,6 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     //Seekbar
     private SeekBar mSeekBar;
     private Intent seekbarIntent;
-    private int seekMax;
-    private static int songEnded = 0;
     boolean mBroadcastIsRegistered;
     private BroadcastReceiver broadcastReceiver;
 
@@ -174,7 +172,7 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
                 if(musicService != null && b){
                     int seekPosition = seekBar.getProgress();
-                    seekbarIntent.putExtra("seekpos", seekPosition);
+                    seekbarIntent.putExtra(Utils.SEEK_POSITION, seekPosition);
                     mActivity.sendBroadcast(seekbarIntent);
                 }
             }
@@ -312,21 +310,18 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
     //------------------------------------------------------------------
 
     private void updateTrackData(Intent intent) {
-        String counter = intent.getStringExtra("counter");
-        String mediamax = intent.getStringExtra("mediamax");
-        String strSongEnded = intent.getStringExtra("song_ended");
-        int seekProgress = Integer.parseInt(counter);
+        int currentPos = intent.getIntExtra(Utils.CURRENT_TRACK_POSITION, 0);
+        int trackLength = intent.getIntExtra(Utils.TRACK_LENGTH, 30000);
+        Boolean trackEnded = intent.getBooleanExtra(Utils.TRACK_ENDED, false);
 
-        seekMax = Integer.parseInt(mediamax);
-        songEnded = Integer.parseInt(strSongEnded);
-        mSeekBar.setMax(seekMax);
-        mTrackEndTime.setText(Utils.getTimeString(seekMax));
+        mSeekBar.setMax(trackLength);
+        mTrackEndTime.setText(Utils.getTimeString(trackLength));
 
-        mSeekBar.setProgress(seekProgress);
-        mTrackStartTime.setText(Utils.getTimeString(seekProgress));
+        mSeekBar.setProgress(currentPos);
+        mTrackStartTime.setText(Utils.getTimeString(currentPos));
 
 
-        if (songEnded == 1) {
+        if (trackEnded) {
             mPlayPauseButton.setImageDrawable(getResources()
                     .getDrawable(android.R.drawable.ic_media_play));
 
@@ -355,20 +350,6 @@ public class PlaybackFragment extends android.support.v4.app.DialogFragment {
                     .getDrawable(android.R.drawable.ic_media_pause));
         }
     }
-
-//    public void updateSeekBar(final int currentTime, int maxDuration){
-//
-//        new android.os.Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (musicService != null && musicService.isPlaying()) {
-//                    mTrackStartTime.setText();
-//                }
-//            }
-//        }, 1000);
-//
-//    }
-
 
 
 } //PlayBackFragment

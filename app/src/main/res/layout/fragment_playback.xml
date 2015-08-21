@@ -55,13 +55,14 @@
             android:text="Album Title" />
 
         <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content">
 
             <SeekBar
                 android:id="@+id/seekbar"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/seekbar_start_time"
@@ -76,50 +77,52 @@
                 android:id="@+id/seekbar_end_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00:30"
+                android:text="00:00"
                 android:layout_below="@id/seekbar"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 android:layout_alignParentRight="true"/>
 
+            <LinearLayout
+                android:id="@+id/playback_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/seekbar_end_time"
+                android:paddingTop="@dimen/playback_controls_margin"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/playback_button_previous"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="@dimen/playback_button_margin_right"
+                    android:layout_height="@dimen/playback_control_height"
+                    android:src="@android:drawable/ic_media_previous"
+                    android:background="@color/button_gray"
+                    android:scaleType="centerInside"/>
+
+                <ImageButton
+                    android:id="@+id/playback_button_play_pause"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="@dimen/playback_button_margin_right"
+                    android:layout_height="@dimen/playback_control_height"
+                    android:src="@android:drawable/ic_media_pause"
+                    android:background="@color/button_gray"
+                    android:scaleType="centerInside"/>
+
+                <ImageButton
+                    android:id="@+id/playback_button_next"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="@dimen/playback_control_height"
+                    android:src="@android:drawable/ic_media_next"
+                    android:background="@color/button_gray"
+                    android:scaleType="centerInside"/>
+
+            </LinearLayout>
+
         </RelativeLayout>
 
-        <LinearLayout
-            android:id="@+id/playback_controls"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="00:30"
-            android:padding="@dimen/playback_controls_margin"
-            android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/playback_button_previous"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_marginRight="@dimen/playback_button_margin_right"
-                android:layout_height="@dimen/playback_control_height"
-                android:src="@android:drawable/ic_media_previous"
-                android:background="@color/button_gray"
-                android:scaleType="centerInside"/>
-
-            <ImageButton
-                android:id="@+id/playback_button_play_pause"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_marginRight="@dimen/playback_button_margin_right"
-                android:layout_height="@dimen/playback_control_height"
-                android:src="@android:drawable/ic_media_pause"
-                android:background="@color/button_gray"
-                android:scaleType="centerInside"/>
-
-            <ImageButton
-                android:id="@+id/playback_button_next"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="@dimen/playback_control_height"
-                android:src="@android:drawable/ic_media_next"
-                android:background="@color/button_gray"
-                android:scaleType="centerInside"/>
-
-        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
