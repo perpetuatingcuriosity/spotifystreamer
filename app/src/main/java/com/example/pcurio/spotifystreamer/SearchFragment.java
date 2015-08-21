@@ -158,6 +158,7 @@ public class SearchFragment extends android.support.v4.app.Fragment {
                 List<kaaes.spotify.webapi.android.models.Artist> artists = artistsPager.artists.items;
 
                 if(artists == null || artists.size() == 0){
+                    Toast.makeText(mActivity, "No artists found", Toast.LENGTH_SHORT).show();
                     mEmptyTextView.setVisibility(View.VISIBLE);
                     mSearchAdapter.notifyDataSetChanged();
 

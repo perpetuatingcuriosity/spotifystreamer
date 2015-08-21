@@ -13,6 +13,7 @@
     <string name="search_artist_query_hint">Search Artists</string>
     <string name="toast_track_no_preview_available">No preview available for this track. Select again!</string>
     <string name="toast_playback_no_connection">There was a problem with your connection! Internet is required to play media</string>
+    <string name="toast_music_service_player_error">Oops! There was a problem playing your track. Can you give it another shot?</string>
 
 
 </resources>

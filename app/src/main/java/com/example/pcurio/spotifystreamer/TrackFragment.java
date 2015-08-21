@@ -151,6 +151,7 @@ public class TrackFragment extends android.support.v4.app.Fragment {
                 mEmptyTextView.setVisibility(View.GONE);
 
                 if(tracks == null || tracks.tracks.size() == 0){
+                    Toast.makeText(mActivity, "No tracks found", Toast.LENGTH_SHORT).show();
                     mTrackAdapter.notifyDataSetChanged();
                     mEmptyTextView.setVisibility(View.VISIBLE);
 

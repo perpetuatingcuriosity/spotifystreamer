@@ -30,17 +30,16 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     private ArrayList<Track> tracks;
 
-    private int songPosition;
+    private int selectedTrackPosition;
 
     //Seekbar processing
-    int currentTrackPosition;
-    int totalTrackLength;
-    private final Handler handler = new Handler();
+    private int currentPosition;
+    private int totalTrackLength;
     private boolean trackEnded;
     public static final String BROADCAST_ACTION = "com.example.pcurio.spotifystreamer.seekprogress";
-    public static final String BROADCAST_AUTOPLAY = "com.example.pcurio.spotifystreamer.autoplay";
 
     Intent seekIntent;
+    private final Handler handler = new Handler();
 
     //------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
         //Set up intent for seekbar broadcast
         seekIntent = new Intent(BROADCAST_ACTION);
 
-        songPosition = 0;
+        selectedTrackPosition = 0;
     }
 
     @Override
@@ -81,12 +80,14 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
         handler.removeCallbacks(sendUpdatesToUI);
 
         player.reset();
-        Track track = tracks.get(songPosition);
+        Track track = tracks.get(selectedTrackPosition);
 
         try {
             player.setDataSource(getApplicationContext(), Uri.parse(track.getPreviewUrl()));
         } catch (IOException e) {
             Log.e(TAG, "Error setting Data source");
+
+            Toast.makeText(this, getString(R.string.toast_music_service_player_error), Toast.LENGTH_SHORT).show();
         }
         player.prepareAsync();
     }
@@ -109,22 +110,18 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     private void sendTrackData() {
 
-        currentTrackPosition = player.getCurrentPosition();
+        currentPosition = player.getCurrentPosition();
         totalTrackLength = player.getDuration();
-        if(currentTrackPosition <= totalTrackLength){
+        if(currentPosition <= totalTrackLength){
 
-            if(currentTrackPosition >= totalTrackLength - 100){
+            if(currentPosition >= totalTrackLength - 100){
                 trackEnded = true;
             }
 
-//             if (currentTrackPosition < 1) {
-//             Toast.makeText(this, "Buffering...", Toast.LENGTH_SHORT).show();
-//             }
-
-            seekIntent.putExtra(Utils.CURRENT_TRACK_POSITION, currentTrackPosition);
+            seekIntent.putExtra(Utils.CURRENT_TRACK_POSITION, currentPosition);
             seekIntent.putExtra(Utils.TRACK_LENGTH, totalTrackLength);
-            Log.v(TAG, "TRACK ENDED:" + String.valueOf(trackEnded));
             seekIntent.putExtra(Utils.TRACK_ENDED, trackEnded);
+
             sendBroadcast(seekIntent);
         }
     }
@@ -133,12 +130,13 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            int seekPos = intent.getIntExtra(Utils.SEEK_POSITION, 0);
-            if (player.isPlaying()) {
-                handler.removeCallbacks(sendUpdatesToUI);
-                player.seekTo(seekPos);
-                setUpHandler();
+            int seekPosition = intent.getIntExtra(Utils.SEEK_POSITION, 0);
 
+            if (player.isPlaying()) {
+
+                handler.removeCallbacks(sendUpdatesToUI);
+                player.seekTo(seekPosition);
+                setUpHandler();
             }
         }
     };
@@ -146,11 +144,11 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
     //------------------------------------------------------------------
 
     public void setTrack(int trackIndex){
-        songPosition = trackIndex;
+        selectedTrackPosition = trackIndex;
     }
 
     public int getTrack() {
-        return songPosition;
+        return selectedTrackPosition;
     }
 
     public void pauseTrack(){
@@ -164,14 +162,6 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
     public boolean isPlaying(){
         return player.isPlaying();
     }
-
-//    public int getCurrentPosition(){
-//        return player.getCurrentPosition();
-//    }
-//
-//    public void setPlayPosition(int seekPosition){
-//        player.seekTo(seekPosition);
-//    }
 
     //------------------------------------------------------------------
 
@@ -190,26 +180,7 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i2) {
-
-//        switch (i) {
-//            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-//                Toast.makeText(this,
-//                        "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + extra,
-//                        Toast.LENGTH_SHORT).show();
-//                break;
-//            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-//                Toast.makeText(this, "MEDIA ERROR SERVER DIED " + extra,
-//                        Toast.LENGTH_SHORT).show();
-//                break;
-//            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-//                Toast.makeText(this, "MEDIA ERROR UNKNOWN " + extra,
-//                        Toast.LENGTH_SHORT).show();
-//                break;
-//        }
-//        return false;
-
-
-        Toast.makeText(this, "There was a problem starting the player", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.toast_music_service_player_error), Toast.LENGTH_SHORT).show();
         return false;
     }
 
@@ -242,7 +213,6 @@ public class MusicService extends Service implements MediaPlayer.OnSeekCompleteL
     @Override
     public void onDestroy() {
         handler.removeCallbacks(sendUpdatesToUI);
-        // Unregister seekbar receiver
         unregisterReceiver(seekProgressReceiver);
 
         super.onDestroy();
