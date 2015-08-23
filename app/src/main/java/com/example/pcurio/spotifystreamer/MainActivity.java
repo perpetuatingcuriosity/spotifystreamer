@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
             PlaybackFragment playbackFragment = new PlaybackFragment();
 
             Bundle b = new Bundle();
+            b.putString(Utils.ARTIST_NAME, mArtistName);
             b.putParcelableArrayList(Utils.TRACK_LIST, trackList);
             b.putInt(Utils.SELECTED_TRACK_POSITION, selectedTrack);
 

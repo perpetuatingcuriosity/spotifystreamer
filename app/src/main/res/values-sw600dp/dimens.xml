@@ -7,4 +7,6 @@
     <dimen name="list_result_image_size">75dp</dimen>
     <dimen name="list_result_image_text_spacing">16dp</dimen>
     <dimen name="list_result_padding">24dp</dimen>
+    <dimen name="fragment_playback_padding">16dp</dimen>
+    <dimen name="fragment_playback_player_width">300dp</dimen>
 </resources>
