@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Se
         TrackFragment.PlaybackListener{
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String TRACK_FRAGMENT_TAG = "TFTAG";
+    public static final String PLAYBACK_FRAGMENT_TAG = "PBTAG";
 
     private Context mContext;
 
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Se
 
             playbackFragment.setArguments(b);
 
-            playbackFragment.show(getSupportFragmentManager(), "PLAYBACK_FRAG");
+            playbackFragment.show(getSupportFragmentManager(), PLAYBACK_FRAGMENT_TAG);
 
         } else {
 
