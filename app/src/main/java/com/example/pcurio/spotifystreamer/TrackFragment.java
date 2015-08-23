@@ -204,6 +204,11 @@ public class TrackFragment extends android.support.v4.app.Fragment {
         });
     } //getTopTracks
 
+    public void clearTracks(){
+            mTopTrackList.clear();
+            mTrackAdapter.notifyDataSetChanged();
+    }
+
     //SaveInstanceState
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {

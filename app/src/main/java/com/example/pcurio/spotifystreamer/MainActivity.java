@@ -9,20 +9,16 @@ import com.example.pcurio.spotifystreamer.model.Track;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements SearchFragment.TrackListener,
+public class MainActivity extends AppCompatActivity implements SearchFragment.SearchListener,
         TrackFragment.PlaybackListener{
     public static final String TAG = MainActivity.class.getSimpleName();
-
     public static final String TRACK_FRAGMENT_TAG = "TFTAG";
 
     private Context mContext;
 
     private TrackFragment mTrackFragment;
 
-    //private PlaybackFragment mPlay;
-
     private boolean mTwoPane;
-    private boolean mIsLargeLayout; //TODO: do we need this?
 
     private String mArtistName;
 
@@ -55,6 +51,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.Tr
     //-----------------------------------------------------------------------------
     // CALLBACKS
     //-----------------------------------------------------------------------------
+
+    @Override
+    public void onArtistsSearched() {
+        if(mTwoPane){
+            mTrackFragment.clearTracks();
+        }
+    }
 
     @Override
     public void displayTracks(String spotifyID, String artistName) {

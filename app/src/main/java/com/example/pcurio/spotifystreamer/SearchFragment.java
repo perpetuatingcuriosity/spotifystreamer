@@ -50,11 +50,12 @@ public class SearchFragment extends android.support.v4.app.Fragment {
     private SearchView mSearchView;
 
     //Interface with Activity
-    public TrackListener mCallback;
+    public SearchListener mCallback;
 
     //------------------------------------------------------------------
 
-    public interface TrackListener {
+    public interface SearchListener {
+        void onArtistsSearched();
         void displayTracks(String spotifyID, String artistName);
     }
 
@@ -69,7 +70,7 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         mActivity = activity;
 
         try {
-            mCallback = (TrackListener) activity;
+            mCallback = (SearchListener) activity;
         } catch(ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + "must implement SearchFragment.TrackListener");
@@ -181,6 +182,7 @@ public class SearchFragment extends android.support.v4.app.Fragment {
                 }
 
                 mSearchAdapter.notifyDataSetChanged();
+                mCallback.onArtistsSearched();
 
             } //success
 
