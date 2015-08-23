@@ -1,3 +1,13 @@
+/*Sources:
+    Create a Music Player on Android by Sue Smith
+    http://code.tutsplus.com/tutorials/create-a-music-player-on-android-song-playback--mobile-22778
+
+    Android: Tutorials – Code a Background Music Player by Glowing Pigs
+    http://www.glowingpigs.com/index.php/extras
+    **NB: Tutorial 8 + 9 for seekbar functionality
+
+*/
+
 package com.example.pcurio.spotifystreamer;
 
 import android.app.Activity;
